@@ -1,2 +1,2 @@
-# cute-comment-for-android
-Comment posting - simulates network delays/failures, retries, and success
+# Cute Comments for Android
+Simulates network delays/failures, retries, and success when posting comments.

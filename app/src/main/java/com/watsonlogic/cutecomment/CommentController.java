@@ -5,20 +5,19 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.watsonlogic.searchproject2.R;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 public class CommentController {
@@ -45,13 +44,14 @@ public class CommentController {
         openSQLDataSource();
     }
 
-    public void openSQLDataSource(){
-        try{
+    public void openSQLDataSource() {
+        try {
             SQLDataSource.open();
-        } catch(SQLException e){
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         testPrintSQLite();
+        testDeleteSQLite();
     }
 
     //test
@@ -64,7 +64,17 @@ public class CommentController {
         }
     }
 
-    public void closeSQLDataSource(){
+    public void testDeleteSQLite(){
+        Log.d(TAG, "SQLITE DELETING:");
+        List<Comment> lis = SQLDataSource.getAllComments();
+        Iterator<Comment> itr = lis.iterator();
+        while(itr.hasNext()){
+            Comment c = itr.next();
+            SQLDataSource.deleteComment(c);
+        }
+    }
+
+    public void closeSQLDataSource() {
         SQLDataSource.close();
     }
 
@@ -76,19 +86,19 @@ public class CommentController {
         return true;
     }
 
-    public int commentsListSize(){
-        try{
+    public int commentsListSize() {
+        try {
             int sz = commentsList.size();
             return sz;
-        } catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return 0;
     }
 
-    public boolean setCustomAdapter(ListView listView){
+    public boolean setCustomAdapter(ListView listView) {
         adapter = (new CustomAdapter(activity, R.layout.comment_row, commentsList));
-        if(commentsList.size() > 0){
+        if (commentsList.size() > 0) {
             listView.setAdapter(adapter);
             return true;
         } else {
@@ -113,14 +123,14 @@ public class CommentController {
         listView.setAdapter(adapter);
     }
 
-    private void synchronizeSQLDataSourceInitial(List<Comment> commentsList){
-        for(Comment c : commentsList){
-            SQLDataSource.createComment(c);
+    private void synchronizeSQLDataSourceInitial(List<Comment> commentsList) {
+        for (Comment c : commentsList) {
+            Comment d = SQLDataSource.createComment(c);
         }
     }
 
-    private void synchronizeSQLDataSource(Comment c){
-        SQLDataSource.createComment(c);
+    private Comment synchronizeSQLDataSource(Comment c) {
+        return SQLDataSource.createComment(c);
     }
 
     public void attemptPostCommentToAPI(long position) {
@@ -139,18 +149,19 @@ public class CommentController {
         //System.out.println(dateFormat.format(date)); //04-09-2016 17:26:48
         mComment = new Comment(true, myCommentString, "#DCDCDC", new CommentDate().getCurrentDate());
         commentsList.add(mComment);
-        int position = commentsList.size()-1;
+        int position = commentsList.size() - 1;
         mComment.setPosition(position);
-        if(position==0){
+        if (position == 0) {
             listView.setAdapter(adapter); //set adapter for the first time (if first element)
         }
-        synchronizeSQLDataSource(mComment);
+        mComment = synchronizeSQLDataSource(mComment);
+        commentsList.set(position, mComment);
         adapter.notifyDataSetChanged();
         return position;
     }
 
     public void updateColor(long position, boolean success, String color) {
-        Comment c = commentsList.get((int)position);
+        Comment c = commentsList.get((int) position);
         c.setColor(color);
         c.setSuccess(success);
         adapter.notifyDataSetChanged();

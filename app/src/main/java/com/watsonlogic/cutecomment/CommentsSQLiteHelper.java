@@ -8,6 +8,8 @@ import android.util.Log;
 
 //creates the database
 public class CommentsSQLiteHelper extends SQLiteOpenHelper{
+    private static final String TAG = "CommentsSQLiteHelper";
+
     public static final String TABLE_NAME = "comments";
 
     //columns
@@ -17,19 +19,16 @@ public class CommentsSQLiteHelper extends SQLiteOpenHelper{
     public static final String COLUMN_NAMED_COMMENT = "comment";
     public static final String COLUMN_NAMED_DATE = "date";
     public static final String COLUMN_NAMED_SUCCESS = "success";
-
-
     private static final String DATABASE_NAME = "commments.db";
     private static final int DATABASE_VERSION = 1;
 
-    private static final String DATABASE_CREATE = "create table "
-            + TABLE_NAME + " (" +
-            COLUMN_NAMED_INSERT_ID + " integer primary key autoincrement, " +
-            COLUMN_NAMED_POSITION + " integer, " +
-            COLUMN_NAMED_COLOR + " text, " +
-            COLUMN_NAMED_COMMENT + " text, " +
-            COLUMN_NAMED_DATE + " date, " +
-            COLUMN_NAMED_SUCCESS + " tinyint)";
+    private static final String DATABASE_CREATE = "create table " + TABLE_NAME + " (" +
+        COLUMN_NAMED_INSERT_ID + " integer primary key autoincrement, " +
+        COLUMN_NAMED_POSITION + " integer, " +
+        COLUMN_NAMED_COLOR + " text, " +
+        COLUMN_NAMED_COMMENT + " text, " +
+        COLUMN_NAMED_DATE + " date, " +
+        COLUMN_NAMED_SUCCESS + " tinyint)";
 
     public CommentsSQLiteHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -46,7 +45,9 @@ public class CommentsSQLiteHelper extends SQLiteOpenHelper{
     //SQLiteDatabase db is the Java representation of the database
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("DROP TABLE IF EXISTS "+ TABLE_NAME);
+        Log.d(TAG,"TRUNCATE TABLE");
+        db.execSQL("TRUNCATE " + TABLE_NAME);
+        db.execSQL("DROP TABLE " + TABLE_NAME);
         db.execSQL(DATABASE_CREATE);
     }
 
@@ -54,8 +55,8 @@ public class CommentsSQLiteHelper extends SQLiteOpenHelper{
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         //called if database version is increased in your app
         Log.w(CommentsSQLiteHelper.class.getName(),
-                "Upgrading database from version " + oldVersion + " to "
-                        + newVersion + ", which will destroy all old data");
+            "Upgrading database from version " + oldVersion + " to "
+            + newVersion + ", which will destroy all old data");
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
         onCreate(db);
     }

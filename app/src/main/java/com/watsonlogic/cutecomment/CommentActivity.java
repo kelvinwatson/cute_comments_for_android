@@ -29,12 +29,7 @@ public class CommentActivity extends AppCompatActivity implements View.OnClickLi
         getWidgets();
         commentController = new CommentController(this,listView);
         //scommentController.setDummyData(listView);
-
-        if(commentController.setCustomAdapter(listView)){
-
-        }
-
-
+        commentController.setCustomAdapter(listView);
     }
 
     @Override

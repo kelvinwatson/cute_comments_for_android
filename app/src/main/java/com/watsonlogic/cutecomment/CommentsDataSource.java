@@ -49,7 +49,6 @@ public class CommentsDataSource {
 
 
         long insertId = db.insert(CommentsSQLiteHelper.TABLE_NAME, null, values);
-        comment.setInsertId(insertId);
 
         List params = new ArrayList();
         params.add(CommentsSQLiteHelper.TABLE_NAME);
@@ -64,6 +63,7 @@ public class CommentsDataSource {
         cursor.moveToFirst();
         Comment newComment = cursorToComment(cursor);
         cursor.close();
+        newComment.setInsertId(insertId);
         return newComment;
     }
 

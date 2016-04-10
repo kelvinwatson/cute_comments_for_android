@@ -46,7 +46,8 @@ public class CommentsSQLiteHelper extends SQLiteOpenHelper{
     //SQLiteDatabase db is the Java representation of the database
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("DROP TABLE IF EXISTS "+ TABLE_NAME+"; " + DATABASE_CREATE);
+        db.execSQL("DROP TABLE IF EXISTS "+ TABLE_NAME);
+        db.execSQL(DATABASE_CREATE);
     }
 
     @Override

@@ -30,6 +30,13 @@
         android:transcriptMode="alwaysScroll"
         android:layout_above="@+id/middle" />
 
+    <TextView
+        android:id="@+id/empty_list_item"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="emptyList"
+        android:visibility="gone" />
+
     <LinearLayout
         android:id="@+id/middle"
         android:layout_width="match_parent"

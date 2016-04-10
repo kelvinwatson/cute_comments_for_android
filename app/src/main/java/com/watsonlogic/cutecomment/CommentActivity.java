@@ -27,8 +27,14 @@ public class CommentActivity extends AppCompatActivity implements View.OnClickLi
         setSupportActionBar(toolbar);
         getLayouts();
         getWidgets();
-        commentController = new CommentController(this);
-        commentController.setDummyData(listView);
+        commentController = new CommentController(this,listView);
+        //scommentController.setDummyData(listView);
+
+        if(commentController.setCustomAdapter(listView)){
+
+        }
+
+
     }
 
     @Override

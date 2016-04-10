@@ -3,6 +3,7 @@ package com.watsonlogic.cutecomment;
 import android.app.Activity;
 import android.content.Context;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
@@ -12,17 +13,20 @@ import com.watsonlogic.searchproject2.R;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CommentController {
+    private static final String TAG = "CommentController";
     private Comment mComment;
     private Activity activity;
     private BaseAdapter adapter;
     private List<Comment> commentsList;
     private String myCommentString;
     private URL apiURL;
+    private CommentsDataSource SQLDataSource;
 
     public CommentController(Activity activity) {
         this.activity = activity;
@@ -31,6 +35,31 @@ public class CommentController {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
+        SQLDataSource = new CommentsDataSource(activity.getApplicationContext());
+        openSQLDataSource();
+    }
+
+    public void openSQLDataSource(){
+        try{
+            SQLDataSource.open();
+        } catch(SQLException e){
+            e.printStackTrace();
+        }
+        testPrintSQLite();
+    }
+
+    //test
+    public void testPrintSQLite() {
+        Log.d(TAG,"SQLITE CONTAINS:");
+        List<Comment> lis = SQLDataSource.getAllComments();
+        for (Comment c : lis) {
+            Log.d(TAG, String.valueOf(c.getInsertId()));
+            Log.d(TAG, c.getComment());
+        }
+    }
+
+    public void closeSQLDataSource(){
+        SQLDataSource.close();
     }
 
     public boolean prepareToPostComment(EditText commentField) {
@@ -43,30 +72,49 @@ public class CommentController {
 
     public void setDummyData(ListView listView) {
         commentsList = new ArrayList<>();
-        commentsList.add(new Comment(true, "cute", "#006699", new CommentDate().getCurrentDate()));
-        commentsList.add(new Comment(true, "very very cute!", "#006699", new CommentDate().getCurrentDate()));
-        commentsList.add(new Comment(true, "awwww!", "#006699", new CommentDate().getCurrentDate()));
+
+        Comment c1 = new Comment(true, "cute", "#006699", new CommentDate().getCurrentDate());
+        Comment c2 = new Comment(true, "very very cute!", "#006699", new CommentDate().getCurrentDate());
+        Comment c3 = new Comment(true, "awwww!", "#006699", new CommentDate().getCurrentDate());
+
+        commentsList.add(c1);
+        commentsList.add(c2);
+        commentsList.add(c3);
+
+        synchronizeSQLDataSource(commentsList);
+
         adapter = (new CustomAdapter(activity, R.layout.comment_row, commentsList));
         listView.setAdapter(adapter);
     }
 
-    public void attemptPostCommentToAPI() {
+    private void synchronizeSQLDataSource(List<Comment> commentsList){
+        for(Comment c : commentsList){
+            SQLDataSource.createComment(c);
+        }
+    }
+
+    public void attemptPostCommentToAPI(long position) {
         new CommentsAsyncTask.CommentsAsyncTaskBuilder()
                 .setContext(activity)
                 .setMethod(CommentsAsyncTask.HTTPMethod.POST)
                 .setUrl(apiURL)
-                .setComment(mComment)
+                .setComment(commentsList.get((int)position))
                 .build()
                 .execute();
     }
 
-    public void addPendingCommentToUI() {
+    public long addPendingCommentToUI() {
         Date date = new Date();
         //SimpleDateFormat dateFormat = new SimpleDateFormat("MM-dd-yyyy HH:mm:ss");
         //System.out.println(dateFormat.format(date)); //04-09-2016 17:26:48
         mComment = new Comment(true, myCommentString, "#DCDCDC", new CommentDate().getCurrentDate());
+
         commentsList.add(mComment);
+        synchronizeSQLDataSource(commentsList);
+
         adapter.notifyDataSetChanged();
+
+        return commentsList.size()-1;
     }
 
     public void updateColor(long position, boolean success, String color) {

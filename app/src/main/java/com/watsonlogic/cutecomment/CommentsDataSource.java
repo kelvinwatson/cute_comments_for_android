@@ -13,7 +13,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class CommentsDataSource {
     private static final String TAG = "CommentsDataSource";
     private SQLiteDatabase db;
@@ -41,8 +40,8 @@ public class CommentsDataSource {
 
     public Comment createComment(Comment comment){
         ContentValues values = new ContentValues();
-        values.put(CommentsSQLiteHelper.COLUMN_NAMED_INSERT_ID, comment.getInsertId());
-        values.put(CommentsSQLiteHelper.COLUMN_NAMED_COLOR, comment.getPosition());
+        //values.put(CommentsSQLiteHelper.COLUMN_NAMED_INSERT_ID, comment.getInsertId());
+        values.put(CommentsSQLiteHelper.COLUMN_NAMED_COLOR, comment.getColor());
         values.put(CommentsSQLiteHelper.COLUMN_NAMED_COMMENT, comment.getComment());
         values.put(CommentsSQLiteHelper.COLUMN_NAMED_DATE, comment.getDate());
         values.put(CommentsSQLiteHelper.COLUMN_NAMED_POSITION, comment.getPosition());
@@ -50,11 +49,12 @@ public class CommentsDataSource {
 
 
         long insertId = db.insert(CommentsSQLiteHelper.TABLE_NAME, null, values);
+        comment.setInsertId(insertId);
 
         List params = new ArrayList();
         params.add(CommentsSQLiteHelper.TABLE_NAME);
         params.add(allColumns);
-        params.add(CommentsSQLiteHelper.COLUMN_NAMED_INSERT_ID);
+        params.add(CommentsSQLiteHelper.COLUMN_NAMED_INSERT_ID +"="+insertId);
         params.add(null);
         params.add(null);
         params.add(null);
@@ -116,7 +116,7 @@ public class CommentsDataSource {
         return db.query(
                 (String)prms.get(0), (String[])prms.get(1), (String)prms.get(2),
                 (String[])prms.get(3), (String)prms.get(4),
-                (String)prms.get(5), (String)prms.get(6), (String)prms.get(7));
+                (String)prms.get(5), (String)prms.get(6));
     }
 
 }

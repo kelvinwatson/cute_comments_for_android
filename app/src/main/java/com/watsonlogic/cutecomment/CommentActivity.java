@@ -10,9 +10,11 @@ import android.widget.ListView;
 
 import com.watsonlogic.searchproject2.R;
 
+import java.sql.SQLException;
+
 public class CommentActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "CommentActivity";
-    private CommentController commentController = new CommentController(this);
+    private CommentController commentController;
     private EditText commentEditTxt;
     private Button postCommentBtn;
     private ListView listView;
@@ -25,7 +27,21 @@ public class CommentActivity extends AppCompatActivity implements View.OnClickLi
         setSupportActionBar(toolbar);
         getLayouts();
         getWidgets();
+        commentController = new CommentController(this);
         commentController.setDummyData(listView);
+    }
+
+    @Override
+    protected void onStop() {
+        commentController.closeSQLDataSource();
+        super.onStop();
+    }
+
+
+    @Override
+    protected void onStart() {
+        commentController.openSQLDataSource();
+        super.onStart();
     }
 
     @Override
@@ -33,9 +49,9 @@ public class CommentActivity extends AppCompatActivity implements View.OnClickLi
         switch (v.getId()) {
             case R.id.post_comment_btn: {
                 if (commentController.prepareToPostComment(commentEditTxt)) {
-                    commentController.addPendingCommentToUI();
+                    long position = commentController.addPendingCommentToUI();
                     commentController.hideKeyboard(commentEditTxt);
-                    commentController.attemptPostCommentToAPI();
+                    commentController.attemptPostCommentToAPI(position);
                 } else {
                     return;
                 }
@@ -55,7 +71,7 @@ public class CommentActivity extends AppCompatActivity implements View.OnClickLi
 
     public void postCommentDone(boolean success, long position) {
         if (!success) {
-            commentController.attemptPostCommentToAPI();
+            commentController.attemptPostCommentToAPI(position);
         } else {
             commentController.updateColor(position, true, "#006699");
         }

@@ -27,11 +27,9 @@ public class CommentsAsyncTask extends AsyncTask<Void, Void, Integer> {
         try {
             switch (method) {
                 case GET: {
-                    Log.d(TAG, "doInBackground:GET");
                     Thread.sleep(2000);
                 }
                 case POST: {
-                    Log.d(TAG, "doInBackground:POST");
                     //random fail or success
                     x = new Random().nextInt(3) - 1; //generate either -1, 0 or 1 and treat 1 as success
                     Thread.sleep(2000);
@@ -46,11 +44,12 @@ public class CommentsAsyncTask extends AsyncTask<Void, Void, Integer> {
     @Override
     protected void onPostExecute(Integer v) {
         super.onPostExecute(v);
-        Log.d(TAG, "onPostExecute():" + v.intValue());
 
         if (v.intValue() < 1) {
+            Log.i(TAG, "Server down. Retrying...");
             ((CommentActivity) this.context).postCommentDone(false, comment.getPosition());
         } else {
+            Log.i(TAG, "Comment successfully posted");
             ((CommentActivity) this.context).postCommentDone(true, comment.getPosition());
         }
 
